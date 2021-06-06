@@ -59,9 +59,8 @@
       }
 
       const objects = [];
-      const spread = 15;
  
-      function addObject(x, y, obj) {
+      function addObject(x, y, obj, spread=15) {
         obj.position.x = x * spread;
         obj.position.y = y * spread;
       
@@ -87,47 +86,6 @@
         const mesh = new THREE.Mesh(geometry, createMaterial());
         addObject(x, y, mesh);
       }
-
-      function makeHeartInstance(color, { posX, posY }) {
-        const material = new THREE.MeshPhongMaterial({ color, side: THREE.DoubleSide });
-        const shape = new THREE.Shape();
-        const x = -2.5;
-        const y = -5;
-        shape.moveTo(x + 2.5, y + 2.5);
-        shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
-        shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
-        shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
-        shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
-        shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
-        shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
-        const curveSegments = 5;
-        const geometry = new THREE.ShapeGeometry(shape, curveSegments);
-
-        const mesh = new THREE.Mesh(geometry, material);
-        if (posX) {
-          mesh.position.x = posX;
-        }
-        if (posY) {
-          mesh.position.y = posY;
-        }
-      
-        return mesh;
-      }
-
-      const shapes = [
-        makeHeartInstance(0x44aa88, { posX: 0 }),
-        makeHeartInstance(0x4455aa, { posX: 0, posY: 10 }),
-        makeHeartInstance(0xe451f5, { posX: 0, posY: -10 }),
-        makeHeartInstance(0x8844aa, { posX: -10 }),
-        makeHeartInstance(0xeb6e34, { posX: -10, posY: 10 }),
-        makeHeartInstance(0xeb4634, { posX: -10, posY: -10 }),
-        makeHeartInstance(0xaa8844, { posX: 10 }),
-        makeHeartInstance(0xb8e81a, { posX: 10, posY: 10 }),
-        makeHeartInstance(0x1a3ce8, { posX: 10, posY: -10 }),
-      ];
-
-      shapes.forEach(shape => scene.add(shape));
-
       function addLineGeometry(x, y, geometry) {
         const material = new THREE.LineBasicMaterial({color: 0x000000});
         const mesh = new THREE.LineSegments(geometry, material);
@@ -328,7 +286,8 @@
           });
           const mesh = new THREE.Mesh(geometry, createMaterial());
           geometry.computeBoundingBox();
-          geometry.boundingBox.getCenter(mesh.position).multiplyScalar(-1);
+          geometry.boundingBox.getCenter(mesh.position)
+            .multiplyScalar(-1);
 
           const parent = new THREE.Object3D();
           parent.add(mesh);
@@ -396,6 +355,75 @@
         addLineGeometry(3, 2, new THREE.WireframeGeometry(new THREE.BoxGeometry(width, height, depth)));
       }
 
+      {      
+        const radius = 7;
+        const widthSegments = 12;
+        const heightSegments = 8;
+        const geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        const material = new THREE.PointsMaterial({
+          color: 'red',
+          // size: 0.2,     // in world units
+        });
+        const pointSphere = new THREE.Points(geometry, material);
+        addObject(-2, 2, pointSphere);
+      }
+      {      
+        const radius = 7;
+        const widthSegments = 12;
+        const heightSegments = 8;
+        const geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        const material = new THREE.PointsMaterial({
+          color: 'red',
+          sizeAttenuation: false,
+          size: 3,     // in pixels
+        });
+        const pointSphere = new THREE.Points(geometry, material);
+        addObject(2, 2, pointSphere);
+      }
+
+      function makeHeartInstance(color, { posX, posY }) {
+        const material = new THREE.MeshPhongMaterial({ color, side: THREE.DoubleSide });
+        const shape = new THREE.Shape();
+        const x = -2.5;
+        const y = -5;
+        shape.moveTo(x + 2.5, y + 2.5);
+        shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+        shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+        shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+        shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+        shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+        shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+        const curveSegments = 5;
+        const geometry = new THREE.ShapeGeometry(shape, curveSegments);
+
+        const mesh = new THREE.Mesh(geometry, material);
+        if (posX) {
+          mesh.position.x = posX;
+        }
+        if (posY) {
+          mesh.position.y = posY;
+        }
+      
+        return mesh;
+      }
+
+      const hearts = [
+        makeHeartInstance(0x44aa88, { posX: 0 }),
+        makeHeartInstance(0x4455aa, { posX: 0, posY: 10 }),
+        makeHeartInstance(0xe451f5, { posX: 0, posY: -10 }),  
+        makeHeartInstance(0x8844aa, { posX: -10 }),
+        makeHeartInstance(0xeb6e34, { posX: -10, posY: 10 }),
+        makeHeartInstance(0xeb4634, { posX: -10, posY: -10 }),
+        makeHeartInstance(0xaa8844, { posX: 10 }),
+        makeHeartInstance(0xb8e81a, { posX: 10, posY: 10 }),
+        makeHeartInstance(0x1a3ce8, { posX: 10, posY: -10 }),
+      ];
+
+      hearts.forEach(heart => {
+        scene.add(heart);
+        objects.push(heart)
+      });
+
       function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
@@ -416,11 +444,13 @@
           camera.updateProjectionMatrix();
         }
  
-        [...shapes, ...objects].forEach((shape, ndx) => {
-          const speed = 1 + ndx * .1;
+        objects.forEach((shape, ndx) => {
+          const speed = 1 + (ndx / 2) * .1;
+          // const speed = 1.1;
           const rot = time * speed;
           shape.rotation.x = rot;
           shape.rotation.y = rot;
+          shape.rotation.z = rot * 2;
         });
         renderer.render(scene, camera);
       
