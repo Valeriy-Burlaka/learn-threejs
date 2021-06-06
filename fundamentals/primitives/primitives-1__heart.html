@@ -1,0 +1,121 @@
+<!-- https://threejsfundamentals.org/threejs/lessons/threejs-primitives.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html, body {
+         margin: 0;
+         height: 100%;
+      }
+      #c {
+         width: 100%;
+         height: 100%;
+         display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+
+    <script type="module">    
+      import * as THREE from 'https://cdn.skypack.dev/three@v0.129.0';
+
+      const canvas = document.querySelector('#c');
+      const renderer = new THREE.WebGLRenderer({ canvas });
+      const scene = new THREE.Scene();
+
+      const fov = 75;
+      const aspect = 2;  // the canvas default
+      const near = 0.1;
+      const far = 50;
+      const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+      camera.position.z = 20;
+
+      function createLight() {
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
+        
+        return light;
+      }
+
+      const light = createLight();
+      scene.add(light);
+
+      function makeHeartInstance(color, { posX, posY }) {
+        const material = new THREE.MeshPhongMaterial({ color, side: THREE.DoubleSide });
+        const shape = new THREE.Shape();
+        const x = -2.5;
+        const y = -5;
+        shape.moveTo(x + 2.5, y + 2.5);
+        shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+        shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+        shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+        shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+        shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+        shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+        const curveSegments = 5;
+        const geometry = new THREE.ShapeGeometry(shape, curveSegments);
+
+        const mesh = new THREE.Mesh(geometry, material);
+        if (posX) {
+          mesh.position.x = posX;
+        }
+        if (posY) {
+          mesh.position.y = posY;
+        }
+      
+        return mesh;
+      }
+
+      const shapes = [
+        makeHeartInstance(0x44aa88,  { posX: 0 }),
+        makeHeartInstance(0x4455aa,  { posX: 0, posY: 10 }),
+        makeHeartInstance(0xe451f5,  { posX: 0, posY: -10 }),
+        makeHeartInstance(0x8844aa, { posX: -10 }),
+        makeHeartInstance(0xeb6e34, { posX: -10, posY: 10 }),
+        makeHeartInstance(0xeb4634, { posX: -10, posY: -10 }),
+        makeHeartInstance(0xaa8844,  { posX: 10 }),
+        makeHeartInstance(0xb8e81a,  { posX: 10, posY: 10 }),
+        makeHeartInstance(0x1a3ce8,  { posX: 10, posY: -10 }),
+      ];
+
+      shapes.forEach(shape => scene.add(shape));
+
+      function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+          renderer.setSize(width, height, false);
+        }
+        return needResize;
+      }
+
+      function render(time) {
+        time *= 0.001;  // convert time to seconds
+
+        if (resizeRendererToDisplaySize(renderer)) {
+          const canvas = renderer.domElement;
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+        }
+ 
+        shapes.forEach((shape, ndx) => {
+          const speed = 1 + ndx * .1;
+          const rot = time * speed;
+          shape.rotation.x = rot;
+          shape.rotation.y = rot;
+        });
+        renderer.render(scene, camera);
+      
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    
+    </script>
+  </body>
+</html>
